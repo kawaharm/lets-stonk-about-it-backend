@@ -21,8 +21,8 @@ class Tweet(models.Model):
     # stock = models.ForeignKey(
     #     Stock, on_delete=models.CASCADE)  # M:1 association
     message = models.CharField(max_length=280)  # max char in tweet
-    date = models.DateField('date')
-    time = models.TimeField('time')
+    date = models.CharField(max_length=20)
+    time = models.CharField(max_length=20)
     # Compound score from sentiment analysis using vader lexicon
     sentiment_score = models.DecimalField(max_digits=4, decimal_places=3)
 
