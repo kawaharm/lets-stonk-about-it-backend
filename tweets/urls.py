@@ -1,15 +1,10 @@
 from django.urls import path, include
-from rest_framework import routers
-from .api import TweetViewSet
+# from rest_framework import routers
+# from .api import TweetViewSet
 from . import views
+from django.views.generic import TemplateView
 
 
-# Routes
-router = routers.DefaultRouter()
-router.register(r'api_tweets', TweetViewSet, 'api_tweets')
-
-
-# Paths
 urlpatterns = [
-    path('api/tweets/', include(router.urls))
+    path('tweets/', views.TweetList.as_view()),
 ]
