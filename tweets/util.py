@@ -5,7 +5,7 @@ from django.conf import settings
 # Bearer token to authorize call to Twitter API
 bearer_token = settings.BEARER_TOKEN
 
-BASE_URL = "https://api.twitter.com/2/tweets?"
+BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
 
 
 def create_url():
@@ -31,7 +31,8 @@ def create_url():
    'text': "During these unprecedented times, what’s happening on Twitter can help the world better understand &amp; respond to the pandemic. \n\nWe're launching a free COVID-19 stream endpoint so qualified devs &amp; researchers can study the public conversation in real-time. https://t.co/BPqMcQzhId",
    'author_id': '2244994945'}]}
     '''
-    url = "https://api.twitter.com/2/tweets?{}&{}".format(ids, tweet_fields)
+    url = "https://api.twitter.com/2/tweets/search/recent?{}&{}".format(
+        ids, tweet_fields)
     return url
 
 
