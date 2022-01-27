@@ -10,6 +10,7 @@ from rest_framework import generics
 from .util import *
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import statistics
+import matplotlib.pyplot as plt
 
 
 from .models import Tweet
@@ -34,9 +35,6 @@ class TweetList(generics.ListCreateAPIView):
     def get(self, request):
         url = "https://api.twitter.com/2/tweets/search/recent?max_results=10&tweet.fields=created_at&place.fields=&query=gamestop%20or%20%23gme%20or%20%40gamestop%20-is%3Aretweet"
         response = execute_twitter_api_call(url)
-        # Extract text only
-        sentences = list(map(lambda s: s.get('text'), response['data']))
-        datetime = list(map(lambda t: t.get('created_at'), response['data']))
 
         '''
         Sentiment Analysis using VADER lexicon.
@@ -44,20 +42,45 @@ class TweetList(generics.ListCreateAPIView):
         Compound score is the sum of the valence score of each word,
         Between -1 (most negative) and +1 (most positive).
         '''
-        score_array = []
         analyzer = SentimentIntensityAnalyzer()
-        for sentence in sentences:
-            # Remove url links from text
-            sentence = re.sub(r"http\S+", "", sentence)
-            vs = analyzer.polarity_scores(sentence)
-            print("{:-<65} {}".format(sentence, str(vs)))
-            score_array.append(vs)
+        tweets = []
+        for res in response['data']:
+            tweet = {}
+            tweet["message"] = res.get('text')
+            tweet["created_at"] = res.get('created_at')
+            # Remove url links from tweet for sentiment analyzer
+            rm_links = re.sub(r"http\S+", "", res.get('text'))
+            # polarity_scores: ex. {'neg': 0.0, 'neu': 0.929, 'pos': 0.071, 'compound': 0.3818}
+            vs = analyzer.polarity_scores(rm_links)
+            tweet["compound_score"] = vs['compound']
+            tweets.append(tweet)
 
-        print('SCORE ARRAY', score_array)
-        total_compound_score = list(
-            map(lambda c: c.get('compound'), score_array))
-        print('TOTAL COMPOUND: ', total_compound_score)
-        mean_compound_score = statistics.mean(total_compound_score)
-        print('MEAN SCORE: ', mean_compound_score)
+        print('TWEEEETS: ', tweets)
+
+        # Calculating mean compound score of tweets by date
+        xy_plots = {}
+        for t in tweets:
+            plot = t
+            date = plot["created_at"].split("T")[0]  # Extract YYYY-MM-DD only
+            score = plot["compound_score"]
+            count = 0
+
+            if xy_plots.get(date):
+                xy_plots[date].append(score)
+            else:
+                xy_plots[date] = []
+                xy_plots[date].append(score)
+
+        print('XY PLOTS: ', xy_plots)
+
+        # mean compound score for all scores
+        # mean_compound_score = statistics.mean(total_compound_score)
+        # print('MEAN SCORE: ', mean_compound_score)
+
+        xy_plots = {date: statistics.mean(score)
+                    for date, score in xy_plots.items()}
+        print('AFTER XY PLOTS: ', xy_plots)
 
         return Response(mean_compound_score)
+
+# XY PLOTS:  {'2022-01-27': 0.3818, '2022-01-24': -1.0386, '2022-01-23': 0.9399, '2022-01-22': -0.7904, '2022-01-21': -0.4121}
