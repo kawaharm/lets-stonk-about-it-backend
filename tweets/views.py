@@ -1,22 +1,24 @@
-import re
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .serializers import TweetSerializer
-from rest_framework import generics
-from .util import *
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import statistics
-import matplotlib.pyplot as plt
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from .util import *
+from rest_framework import generics
+from .serializers import TweetSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
+from django.urls import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+import re
 import numpy as np
 import base64
 from io import BytesIO
-
-
 from .models import Tweet
+import matplotlib.pyplot as plt
+
+
+# from matplotlib.figure import Figure
+# from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 
 class TweetList(generics.ListCreateAPIView):
@@ -26,17 +28,8 @@ class TweetList(generics.ListCreateAPIView):
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializer
 
-    # def get(self, request, format=None):
-    #     url = "https://api.twitter.com/2/tweets?ids=1278747501642657792,1255542774432063488&tweet.fields=lang,author_id"
-    #     response = execute_twitter_api_call(url)
-    #     print('RESPONSE: ', response)
-    #     print('first id: ', response['data'][0].get('id'))
-    #     print('first text: ', response['data'][0].get('text'))
-
-    #     return Response(response)
-
     def get(self, request):
-        url = "https://api.twitter.com/2/tweets/search/recent?max_results=10&tweet.fields=created_at&place.fields=&query=gamestop%20or%20%23gme%20or%20%40gamestop%20-is%3Aretweet"
+        url = "https://api.twitter.com/2/tweets/search/recent?query=gamestop%20%23gme&max_results=100&sort_order=recency&tweet.fields=created_at,text"
         response = execute_twitter_api_call(url)
 
         '''
@@ -91,29 +84,58 @@ class TweetList(generics.ListCreateAPIView):
         print('AVG SCORE:  ', avg_scores)
         print('x order:  ', x_order)
 
-        def create_graph():
-            # Create buffer for saving image of graph
-            buffer = BytesIO()
-            plt.savefig(buffer, format='png')
-            buffer.seek(0)
-            # Encode image then decode to utf-8
-            encoded = base64.b64encode(buffer.getvalue()).decode('utf-8')
-            buffer.close()  # free buffer memory
-            return encoded
+        # def create_graph():
+        #     # Create buffer for saving image of graph
+        #     buffer = BytesIO()
+        #     plt.savefig(buffer, format='png')
+        #     buffer.seek(0)
+        #     # Encode image then decode to utf-8
+        #     encoded = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        #     buffer.close()  # free buffer memory
+        #     return encoded
 
-        x = np.array(x_order)
-        y = np.array(avg_scores)
+        # x = np.array(x_order)
+        # y = np.array(avg_scores)
         plt.switch_backend('AGG')   # Set matplotlib backend so we can use plt
-        plt.xticks(x, dates)
-        plt.figure(figsize=(10, 5))
-        plt.plot(x, y)
+        plt.xticks(x_order, dates)
+        # plt.figure(figsize=(10, 5))
         plt.title('Average Sentiment Score for Tweets')
         plt.xlabel('Date')
         plt.ylabel('Average Compound Score')
-        plotfinal = create_graph()
-        html_graph = '<img src="data:image/png;base64, {}" />'.format(
-            plotfinal)
+        plt.plot(x_order, avg_scores)
+        plt.savefig('saved_fig.png')
+        # plotfinal = create_graph()
+        # html_graph = '<img src="data:image/png;base64, {}" />'.format(
+        #     plotfinal)
 
-        return Response(html_graph)
+        # return Response(html_graph)
+
+        # # Generate plot
+        # fig = Figure()
+        # axis = fig.add_subplot(1, 1, 1)
+        # axis.set_title("title")
+        # axis.set_xlabel("x-axis")
+        # axis.set_ylabel("y-axis")
+        # axis.grid()
+        # axis.plot(range(5), range(5), "ro-")
+
+        # # Convert plot to PNG image
+        # pngImage = BytesIO()
+        # FigureCanvas(fig).print_png(pngImage)
+
+        # # Encode PNG image to base64 string
+        # pngImageB64String = "data:image/png;base64,"
+        # pngImageB64String += base64.b64encode(
+        #     pngImage.getvalue()).decode('utf8')
+
+        # return Response(pngImageB64String)
+
+        # x = np.arange(0, 10, 0.1)
+        # y = np.sin(x)
+
+        # plt.switch_backend('AGG')   # Set matplotlib backend so we can use plt
+        # plt.plot(x, y)
+        # plt.savefig('saved_fig.png')
+
 
 # XY PLOTS:  {'2022-01-27': 0.3818, '2022-01-24': -1.0386, '2022-01-23': 0.9399, '2022-01-22': -0.7904, '2022-01-21': -0.4121}

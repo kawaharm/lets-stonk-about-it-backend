@@ -25,6 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 BEARER_TOKEN = str(os.getenv('BEARER_TOKEN'))
+POLYGON_API_KEY = str(os.getenv('POLYGON_API_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
