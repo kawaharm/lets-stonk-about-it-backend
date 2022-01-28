@@ -11,6 +11,9 @@ from .util import *
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import statistics
 import matplotlib.pyplot as plt
+import numpy as np
+import base64
+from io import BytesIO
 
 
 from .models import Tweet
@@ -55,32 +58,62 @@ class TweetList(generics.ListCreateAPIView):
             tweet["compound_score"] = vs['compound']
             tweets.append(tweet)
 
-        print('TWEEEETS: ', tweets)
-
-        # Calculating mean compound score of tweets by date
+        # Calculating average compound score of tweets by date
         xy_plots = {}
         for t in tweets:
             plot = t
             date = plot["created_at"].split("T")[0]  # Extract YYYY-MM-DD only
             score = plot["compound_score"]
-            count = 0
 
+            # If date exists, append score to list
             if xy_plots.get(date):
                 xy_plots[date].append(score)
             else:
                 xy_plots[date] = []
                 xy_plots[date].append(score)
 
-        print('XY PLOTS: ', xy_plots)
-
-        # mean compound score for all scores
-        # mean_compound_score = statistics.mean(total_compound_score)
-        # print('MEAN SCORE: ', mean_compound_score)
-
+        # Replace score list with average score
         xy_plots = {date: statistics.mean(score)
                     for date, score in xy_plots.items()}
-        print('AFTER XY PLOTS: ', xy_plots)
 
-        return Response(mean_compound_score)
+        # Set up line graph
+        dates = []
+        avg_scores = []
+        x_order = []
+        count = 0
+        for date, score in xy_plots.items():
+            dates.insert(0, date)
+            avg_scores.insert(0, score)
+            count += 1
+            x_order.append(count)
+
+        print('DATES:  ', dates)
+        print('AVG SCORE:  ', avg_scores)
+        print('x order:  ', x_order)
+
+        def create_graph():
+            # Create buffer for saving image of graph
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            # Encode image then decode to utf-8
+            encoded = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            buffer.close()  # free buffer memory
+            return encoded
+
+        x = np.array(x_order)
+        y = np.array(avg_scores)
+        plt.switch_backend('AGG')   # Set matplotlib backend so we can use plt
+        plt.xticks(x, dates)
+        plt.figure(figsize=(10, 5))
+        plt.plot(x, y)
+        plt.title('Average Sentiment Score for Tweets')
+        plt.xlabel('Date')
+        plt.ylabel('Average Compound Score')
+        plotfinal = create_graph()
+        html_graph = '<img src="data:image/png;base64, {}" />'.format(
+            plotfinal)
+
+        return Response(html_graph)
 
 # XY PLOTS:  {'2022-01-27': 0.3818, '2022-01-24': -1.0386, '2022-01-23': 0.9399, '2022-01-22': -0.7904, '2022-01-21': -0.4121}
