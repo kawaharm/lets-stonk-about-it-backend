@@ -1,41 +1,36 @@
 import statistics
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from .util import *
-from django.http import HttpResponse
+from rest_framework import generics
+from .serializers import TweetSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
+from django.urls import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
 import re
+import numpy as np
 import base64
 from io import BytesIO
 from .models import Tweet
 import matplotlib.pyplot as plt
-from django.views.decorators.csrf import csrf_exempt
-
-BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
-
-stock_list = [
-    {
-        "name": "gme",
-        "keywords": ["gamestop", "gme"],
-    },
-    {
-        "name": "aapl",
-        "keywords": ["apple", "aapl"],
-    },
-]
 
 
-@csrf_exempt
-def get_tweets(request):
+# from matplotlib.figure import Figure
+# from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-    if request.method == 'POST':
-        # Decode json
-        name = request.body.decode('utf-8')
-        q = []
-        for stock in stock_list:
-            if stock.get('name') == name:
-                q = stock['keywords']
-        print('Q IS ', q)
-        url = BASE_URL+"?query={}%20%23{}&max_results=100&sort_order=recency&tweet.fields=created_at".format(
-            q[0], q[1])
+
+class TweetList(generics.ListCreateAPIView):
+    '''
+    Get a set of tweets, or create new tweets
+    '''
+    queryset = Tweet.objects.all()
+    serializer_class = TweetSerializer
+
+    def post(self, request):
+        print('FROM FRONTEND: ', request)
+        url = "https://api.twitter.com/2/tweets/search/recent?query=aapl%20%23aapl&start_time=2022-01-22T00:00:00.000Z&end_time=2022-01-28T13:00:00.000Z&max_results=100&sort_order=recency&tweet.fields=created_at"
         response = execute_twitter_api_call(url)
 
         '''
@@ -100,6 +95,8 @@ def get_tweets(request):
             buffer.close()  # free buffer memory
             return encoded
 
+        # x = np.array(x_order)
+        # y = np.array(avg_scores)
         plt.switch_backend('AGG')   # Set matplotlib backend so we can use plt
         plt.xticks(x_order, dates, rotation="vertical")
         plt.figure(figsize=(10, 5))
@@ -112,4 +109,34 @@ def get_tweets(request):
         html_graph = 'data:image/png;base64, {}'.format(
             plotfinal)
 
-        return HttpResponse(html_graph)
+        return Response(html_graph)
+
+        # # Generate plot
+        # fig = Figure()
+        # axis = fig.add_subplot(1, 1, 1)
+        # axis.set_title("title")
+        # axis.set_xlabel("x-axis")
+        # axis.set_ylabel("y-axis")
+        # axis.grid()
+        # axis.plot(range(5), range(5), "ro-")
+
+        # # Convert plot to PNG image
+        # pngImage = BytesIO()
+        # FigureCanvas(fig).print_png(pngImage)
+
+        # # Encode PNG image to base64 string
+        # pngImageB64String = "data:image/png;base64,"
+        # pngImageB64String += base64.b64encode(
+        #     pngImage.getvalue()).decode('utf8')
+
+        # return Response(pngImageB64String)
+
+        # x = np.arange(0, 10, 0.1)
+        # y = np.sin(x)
+
+        # plt.switch_backend('AGG')   # Set matplotlib backend so we can use plt
+        # plt.plot(x, y)
+        # plt.savefig('saved_fig.png')
+
+
+# XY PLOTS:  {'2022-01-27': 0.3818, '2022-01-24': -1.0386, '2022-01-23': 0.9399, '2022-01-22': -0.7904, '2022-01-21': -0.4121}
