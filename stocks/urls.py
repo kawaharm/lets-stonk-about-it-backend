@@ -5,5 +5,5 @@ from . import views
 
 
 urlpatterns = [
-    path('stocks/', views.StockList.as_view()),
+    path('', views.get_stocks),
 ]

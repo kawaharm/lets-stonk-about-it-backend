@@ -29,11 +29,12 @@ def get_tweets(request):
     if request.method == 'POST':
         # Decode json
         name = request.body.decode('utf-8')
+        print('FROM REACT: ', name)
+        print('TYPE: ', type(name))
         q = []
         for stock in stock_list:
             if stock.get('name') == name:
                 q = stock['keywords']
-        print('Q IS ', q)
         url = BASE_URL+"?query={}%20%23{}&max_results=100&sort_order=recency&tweet.fields=created_at".format(
             q[0], q[1])
         response = execute_twitter_api_call(url)

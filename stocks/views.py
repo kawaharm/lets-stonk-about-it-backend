@@ -1,17 +1,51 @@
-from rest_framework import generics
-from .serializers import StockSerializer
 from .util import *
-
-
+from django.http import HttpResponse
 from .models import Stock
+from django.views.decorators.csrf import csrf_exempt
+import ast
+import json
 
 
-class StockList(generics.ListCreateAPIView):
+stock_list = [
+    {
+        "name": "gme",
+        "keywords": ["gamestop", "gme"],
+    },
+    {
+        "name": "aapl",
+        "keywords": ["apple", "aapl"],
+    },
+]
 
-    queryset = Stock.objects.all()
-    serializer_class = StockSerializer
 
-    def get(self, request):
-        url = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2020-06-01/2020-06-17"
+@csrf_exempt
+def get_stocks(request):
+
+    if request.method == 'POST':
+        # Decode bytestring
+        req = request.body.decode('utf-8')
+        # Convert bytestring to dictionary
+        stock = ast.literal_eval(req)
+        print("stock info from REACT: ", stock)
+
+        BASE_URL = "https://api.polygon.io/v2/aggs/"
+        # url = BASE_URL+"ticker/{}/range/1/day/{}/{}".format(
+        #     stock["ticker"], stock["dates"][0], stock["dates"][1])
+        url = BASE_URL+"ticker/{}/range/1/day/{}/{}".format(
+            stock["ticker"], '2022-01-25', '2022-01-25')
         response = execute_polygon_api_call(url)
-        print('RESPONSE from views', response)
+        print('response data', response)
+        print('response type', type(response))
+
+        return HttpResponse(json.dumps(response))
+
+        # print('FROM REACT: ', name)
+        # print('TYPE: ', type(name))
+        # q = []
+        # for stock in stock_list:
+        #     if stock.get('name') == name:
+        #         q = stock['keywords']
+        # print('Q IS ', q)
+        # url = BASE_URL+"".format(
+        #     q[0], q[1])
+        # response = execute_twitter_api_call(url)

@@ -3,8 +3,7 @@ from django.conf import settings
 
 
 api_key = settings.POLYGON_API_KEY
-
-url = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2020-06-01/2020-06-17"
+BASE_URL = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2020-06-01/2020-06-17?apiKey=cw5qbTXQL5a6GfZ7PXpa34aoVGhBwhZs"
 
 
 def get_authentication(res):
