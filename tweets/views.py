@@ -6,6 +6,7 @@ import re
 import base64
 from io import BytesIO
 from .models import Tweet
+import matplotlib
 import matplotlib.pyplot as plt
 from django.views.decorators.csrf import csrf_exempt
 
@@ -13,12 +14,28 @@ BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
 
 stock_list = [
     {
-        "name": "gme",
+        "name": "GME",
         "keywords": ["gamestop", "gme"],
     },
     {
-        "name": "aapl",
+        "name": "AAPL",
         "keywords": ["apple", "aapl"],
+    },
+    {
+        "name": "TSLA",
+        "keywords": ["tesla", "tsla"],
+    },
+    {
+        "name": "AMC",
+        "keywords": ["amc", "amc"],
+    },
+    {
+        "name": "AMZN",
+        "keywords": ["amazon", "amzn"],
+    },
+    {
+        "name": "NVDA",
+        "keywords": ["nvidia", "nvda"],
     },
 ]
 
@@ -29,8 +46,6 @@ def get_tweets(request):
     if request.method == 'POST':
         # Decode json
         name = request.body.decode('utf-8')
-        print('FROM REACT: ', name)
-        print('TYPE: ', type(name))
         q = []
         for stock in stock_list:
             if stock.get('name') == name:
@@ -38,6 +53,7 @@ def get_tweets(request):
         url = BASE_URL+"?query={}%20%23{}&max_results=100&sort_order=recency&tweet.fields=created_at".format(
             q[0], q[1])
         response = execute_twitter_api_call(url)
+        print('TWITTER API RESPNSE', response)
 
         '''
         Sentiment Analysis using VADER lexicon.
@@ -58,6 +74,7 @@ def get_tweets(request):
             tweet["compound_score"] = vs['compound']
             tweets.append(tweet)
 
+        print(tweets)
         # Calculating average compound score of tweets by date
         xy_plots = {}
         for t in tweets:
@@ -86,10 +103,8 @@ def get_tweets(request):
             avg_scores.insert(0, score)
             count += 1
             x_order.append(count)
-
-        print('DATES:  ', dates)
-        print('AVG SCORE:  ', avg_scores)
-        print('x order:  ', x_order)
+        print('DATES', dates)
+        print('X_ORDER', x_order)
 
         def create_graph():
             # Create buffer for saving image of graph
@@ -102,13 +117,21 @@ def get_tweets(request):
             return encoded
 
         plt.switch_backend('AGG')   # Set matplotlib backend so we can use plt
-        plt.xticks(x_order, dates, rotation="vertical")
-        plt.figure(figsize=(10, 5))
+        # plt.xticks(x_order, dates)
+        # plt.figure(figsize=(10, 5))
+        # plt.title('Average Sentiment Score for Tweets')
+        # plt.xlabel('Date')
+        # plt.ylabel('Average Compound Score')
+        # plt.plot(x_order, avg_scores)
+        # plt.savefig('saved_fig.png')
+        fig, ax = plt.subplots()
+        ax.plot(x_order, avg_scores)
+        ax.set_xticks(x_order)
+        ax.set_xticklabels(dates, rotation=45)
         plt.title('Average Sentiment Score for Tweets')
         plt.xlabel('Date')
         plt.ylabel('Average Compound Score')
-        plt.plot(x_order, avg_scores)
-        plt.savefig('saved_fig.png')
+        plt.tight_layout()
         plotfinal = create_graph()
         html_graph = 'data:image/png;base64, {}'.format(
             plotfinal)
