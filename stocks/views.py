@@ -29,10 +29,8 @@ def get_stocks(request):
         print("stock info from REACT: ", stock)
 
         BASE_URL = "https://api.polygon.io/v2/aggs/"
-        # url = BASE_URL+"ticker/{}/range/1/day/{}/{}".format(
-        #     stock["ticker"], stock["dates"][0], stock["dates"][1])
         url = BASE_URL+"ticker/{}/range/1/day/{}/{}".format(
-            stock["ticker"], '2022-01-25', '2022-01-25')
+            stock["ticker"], stock["dates"][0], stock["dates"][1])
         response = execute_polygon_api_call(url)
         print('response data', response)
         print('response type', type(response))
