@@ -117,13 +117,6 @@ def get_tweets(request):
             return encoded
 
         plt.switch_backend('AGG')   # Set matplotlib backend so we can use plt
-        # plt.xticks(x_order, dates)
-        # plt.figure(figsize=(10, 5))
-        # plt.title('Average Sentiment Score for Tweets')
-        # plt.xlabel('Date')
-        # plt.ylabel('Average Compound Score')
-        # plt.plot(x_order, avg_scores)
-        # plt.savefig('saved_fig.png')
         fig, ax = plt.subplots()
         ax.plot(x_order, avg_scores)
         ax.set_xticks(x_order)
