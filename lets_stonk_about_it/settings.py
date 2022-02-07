@@ -63,6 +63,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://lets-stonk-about-it.herokuapp.com/"
 ]
 
 ROOT_URLCONF = 'lets_stonk_about_it.urls'

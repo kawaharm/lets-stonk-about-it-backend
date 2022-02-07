@@ -9,6 +9,7 @@ from .models import Tweet
 import matplotlib
 import matplotlib.pyplot as plt
 from django.views.decorators.csrf import csrf_exempt
+import sys
 
 BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
 
@@ -47,6 +48,7 @@ def get_tweets(request):
         # Decode json
         name = request.body.decode('utf-8')
         print('REQUEST BODY FROM FRONTEND: ', name)
+        sys.stdout.flush()  # for logging in Heroku
         q = []
         for stock in stock_list:
             if stock.get('name') == name:
@@ -104,8 +106,8 @@ def get_tweets(request):
             avg_scores.insert(0, score)
             count += 1
             x_order.append(count)
-        print('DATES', dates)
-        print('X_ORDER', x_order)
+        # print('DATES', dates)
+        # print('X_ORDER', x_order)
 
         def create_graph():
             # Create buffer for saving image of graph
