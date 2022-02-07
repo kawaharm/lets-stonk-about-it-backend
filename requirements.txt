@@ -53,4 +53,5 @@ vaderSentiment==3.3.2
 wcwidth==0.2.5
 Werkzeug==2.0.2
 zipp==3.7.0
-gunicorn
+gunicorn==20.1.0
+django-heroku==0.3.1
