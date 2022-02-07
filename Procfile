@@ -1,3 +1,2 @@
-web: gunicorn lets_stonk_about_it.wsgi:application --log-file - --log-level debug
+web: gunicorn mysite.wsgi --log-file -
 heroku ps:scale web=1
-manage.py migrate
