@@ -53,7 +53,6 @@ def get_tweets(request):
         url = BASE_URL+"?query={}%20%23{}&max_results=100&sort_order=recency&tweet.fields=created_at".format(
             q[0], q[1])
         response = execute_twitter_api_call(url)
-        print('TWITTER API RESPNSE', response)
 
         '''
         Sentiment Analysis using VADER lexicon.
