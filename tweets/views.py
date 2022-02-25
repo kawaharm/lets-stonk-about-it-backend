@@ -47,7 +47,6 @@ def get_tweets(request):
     if request.method == 'POST':
         # Decode json
         name = request.body.decode('utf-8')
-        print('REQUEST BODY FROM FRONTEND: ', name)
         sys.stdout.flush()  # for logging in Heroku
         q = []
         for stock in stock_list:
@@ -56,7 +55,6 @@ def get_tweets(request):
         url = BASE_URL+"?query={}%20%23{}&max_results=100&sort_order=recency&tweet.fields=created_at".format(
             q[0], q[1])
         response = execute_twitter_api_call(url)
-        print('REPONSE FROM TWITTER API: ', response)
 
         '''
         Sentiment Analysis using VADER lexicon.
@@ -77,7 +75,6 @@ def get_tweets(request):
             tweet["compound_score"] = vs['compound']
             tweets.append(tweet)
 
-        print(tweets)
         # Calculating average compound score of tweets by date
         xy_plots = {}
         for t in tweets:

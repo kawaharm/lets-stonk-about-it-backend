@@ -52,7 +52,7 @@ def get_stocks(request):
 
         # Stock candles
         response = finnhub_client.stock_candles(
-            'AAPL', 'D', 1645753154, 1645753154)
+            stock["ticker"], stock["period"], stock["dates"][0], stock["dates"][1])
         print(response)
 
         return HttpResponse(json.dumps(response))
