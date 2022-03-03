@@ -45,7 +45,7 @@ def get_stocks(request):
 
         # Retrieve stock market data from Yahoo Finance
         # tesla = pdr.DataReader('TSLA', 'yahoo', start, end, interval='30')
-        tesla = yf.download("AAPL", period="5d", interval="1m")
+        tesla = yf.download("NVDA", period="5d", interval="30m")
         print(tesla)
 
         def create_graph():
@@ -58,28 +58,31 @@ def get_stocks(request):
             buffer.close()  # free buffer memory
             return encoded
 
-        # style.use('ggplot')
         # tesla['Close'].plot(figsize=(8, 8), label='Tesla')
         plt.switch_backend('AGG')
-        close = tesla['Close']
-        ax = close.plot(title='Tesla')
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Closing Price')
-        ax.grid()
-        ax.figure.savefig('stockgraph.png')
 
-        # fig, ax = plt.subplots()
-        # ax.plot(x_order, avg_scores)
+        close = tesla['Close']
+        # ax = close.plot(figsize=(12, 12))
+        # ax.set_xlabel('Date')
+        # ax.set_ylabel('Closing Price')
+        # ax.tight_layout()
+        # ax.grid()
+        # ax.figure.savefig('stockgraph.png')
+
+        fig, ax = plt.subplots()
+        ax.plot(close, color='red')
         # ax.set_xticks(x_order)
         # ax.set_xticklabels(dates, rotation=45)
-        # plt.title('Stock Graph')
-        # plt.xlabel('Date')
-        # plt.ylabel('Price (USD)')
-        # plt.tight_layout()
-        # plotfinal = create_graph()
-        # html_graph = 'data:image/png;base64, {}'.format(
-        #     plotfinal)
+        plt.title('Stock Graph')
+        plt.xlabel('Date')
+        plt.xticks(rotation=45)
+        plt.ylabel('Price (USD)')
+        plt.tight_layout()
+        plt.savefig('stockgraph2.png')
+        plotfinal = create_graph()
+        html_graph = 'data:image/png;base64, {}'.format(
+            plotfinal)
 
-        response = 'hello'
+        return HttpResponse(html_graph)
 
-        return HttpResponse(json.dumps(response))
+        # return HttpResponse(json.dumps(response))
