@@ -6,7 +6,6 @@ import re
 import base64
 from io import BytesIO
 from .models import Tweet
-import matplotlib
 import matplotlib.pyplot as plt
 from django.views.decorators.csrf import csrf_exempt
 import sys
