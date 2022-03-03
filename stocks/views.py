@@ -8,7 +8,11 @@ import finnhub
 
 import datetime as dt
 from matplotlib import pyplot as plt
-from matplotlib import stylefrom pandas_datareader import data as pdr
+from matplotlib import style
+import base64
+from io import BytesIO
+from pandas_datareader import data as pdr
+import yfinance as yf
 
 
 API_KEY = settings.FINNHUB_API_KEY
@@ -37,9 +41,45 @@ def get_stocks(request):
         # print(response)
 
         start = dt.datetime(2019, 1, 1)
-        end = dt.datetime(2020, 8, 14)
+        end = dt.datetime(2019, 1, 2)
 
-        tesla = pdr.DataReader('TSLA', 'yahoo', start, end)
+        # Retrieve stock market data from Yahoo Finance
+        # tesla = pdr.DataReader('TSLA', 'yahoo', start, end, interval='30')
+        tesla = yf.download("AAPL", period="5d", interval="1m")
         print(tesla)
+
+        def create_graph():
+            # Create buffer for saving image of graph
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            # Encode image then decode to utf-8
+            encoded = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            buffer.close()  # free buffer memory
+            return encoded
+
+        # style.use('ggplot')
+        # tesla['Close'].plot(figsize=(8, 8), label='Tesla')
+        plt.switch_backend('AGG')
+        close = tesla['Close']
+        ax = close.plot(title='Tesla')
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Closing Price')
+        ax.grid()
+        ax.figure.savefig('stockgraph.png')
+
+        # fig, ax = plt.subplots()
+        # ax.plot(x_order, avg_scores)
+        # ax.set_xticks(x_order)
+        # ax.set_xticklabels(dates, rotation=45)
+        # plt.title('Stock Graph')
+        # plt.xlabel('Date')
+        # plt.ylabel('Price (USD)')
+        # plt.tight_layout()
+        # plotfinal = create_graph()
+        # html_graph = 'data:image/png;base64, {}'.format(
+        #     plotfinal)
+
+        response = 'hello'
 
         return HttpResponse(json.dumps(response))
