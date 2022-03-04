@@ -28,11 +28,12 @@ def get_stocks(request):
         stock = ast.literal_eval(req)
         print("stock info from REACT: ", stock)
 
-        stock_data = stock['period']
-
         # Retrieve stock market data from Yahoo Finance
-        tesla = yf.download("NVDA", period=stock['period'], interval="30m")
-        print(tesla)
+        intervalHourly = "60m"
+        intervalDaily = "1d"
+        stock_data = yf.download(
+            "NVDA", period=stock['period'], interval=intervalHourly)
+        print(stock_data)
 
         def create_graph():
             # Create buffer for saving image of graph
@@ -45,17 +46,14 @@ def get_stocks(request):
             return encoded
 
         plt.switch_backend('AGG')
-        close = tesla['Close']
+        close = stock_data['Close']  # Extract closing prices
         fig, ax = plt.subplots()
         ax.plot(close, color='red')
         plt.title('Stock Graph')
         plt.xlabel('Date')
         plt.xticks(rotation=45)
-        plt.ylabel('Price (USD)')
+        plt.ylabel('Closing Price (USD)')
         plt.tight_layout()
-        # response = HttpResponse(content_type="image/png")
-        # plt.savefig(response)
-        # return response
         plotfinal = create_graph()
         html_graph = 'data:image/png;base64, {}'.format(
             plotfinal)
