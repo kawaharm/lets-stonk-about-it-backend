@@ -28,24 +28,10 @@ def get_stocks(request):
         stock = ast.literal_eval(req)
         print("stock info from REACT: ", stock)
 
-        # interval = ''
-        # if stock['period'] == 'D':
-        #     interval = '30'
-
-        # # Setup client
-        # finnhub_client = finnhub.Client(api_key=API_KEY)
-
-        # # Stock candles
-        # response = finnhub_client.stock_candles(
-        #     stock["ticker"], "D", stock["dates"][0], stock["dates"][1])
-        # print(response)
-
-        start = dt.datetime(2019, 1, 1)
-        end = dt.datetime(2019, 1, 2)
+        stock_data = stock['period']
 
         # Retrieve stock market data from Yahoo Finance
-        # tesla = pdr.DataReader('TSLA', 'yahoo', start, end, interval='30')
-        tesla = yf.download("NVDA", period="5d", interval="30m")
+        tesla = yf.download("NVDA", period=stock['period'], interval="30m")
         print(tesla)
 
         def create_graph():
@@ -58,27 +44,18 @@ def get_stocks(request):
             buffer.close()  # free buffer memory
             return encoded
 
-        # tesla['Close'].plot(figsize=(8, 8), label='Tesla')
         plt.switch_backend('AGG')
-
         close = tesla['Close']
-        # ax = close.plot(figsize=(12, 12))
-        # ax.set_xlabel('Date')
-        # ax.set_ylabel('Closing Price')
-        # ax.tight_layout()
-        # ax.grid()
-        # ax.figure.savefig('stockgraph.png')
-
         fig, ax = plt.subplots()
         ax.plot(close, color='red')
-        # ax.set_xticks(x_order)
-        # ax.set_xticklabels(dates, rotation=45)
         plt.title('Stock Graph')
         plt.xlabel('Date')
         plt.xticks(rotation=45)
         plt.ylabel('Price (USD)')
         plt.tight_layout()
-        plt.savefig('stockgraph2.png')
+        # response = HttpResponse(content_type="image/png")
+        # plt.savefig(response)
+        # return response
         plotfinal = create_graph()
         html_graph = 'data:image/png;base64, {}'.format(
             plotfinal)
