@@ -91,6 +91,7 @@ def get_tweets(request):
         # Replace score list with average score
         xy_plots = {date: statistics.mean(score)
                     for date, score in xy_plots.items()}
+        print('AVERAGE SCORE', xy_plots)
 
         # Set up line graph
         dates = []
@@ -120,7 +121,7 @@ def get_tweets(request):
         ax.plot(x_order, avg_scores)
         ax.set_xticks(x_order)
         ax.set_xticklabels(dates, rotation=45)
-        plt.title('Average Sentiment Score for Tweets')
+        plt.title('Average Sentiment for ${}'.format(name))
         plt.xlabel('Date')
         plt.ylabel('Average Compound Score')
         plt.tight_layout()

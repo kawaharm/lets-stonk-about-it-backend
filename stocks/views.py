@@ -29,10 +29,12 @@ def get_stocks(request):
         print("stock info from REACT: ", stock)
 
         # Retrieve stock market data from Yahoo Finance
-        intervalHourly = "60m"
-        intervalDaily = "1d"
+        company = stock['ticker']
+        period = stock['period']
+        interval = '60m' if period == '1d' else '1d'
+
         stock_data = yf.download(
-            "NVDA", period=stock['period'], interval=intervalHourly)
+            company, period=period, interval=interval)
         print(stock_data)
 
         def create_graph():
@@ -49,7 +51,7 @@ def get_stocks(request):
         close = stock_data['Close']  # Extract closing prices
         fig, ax = plt.subplots()
         ax.plot(close, color='red')
-        plt.title('Stock Graph')
+        plt.title('Stock Performance for ${}'.format(company))
         plt.xlabel('Date')
         plt.xticks(rotation=45)
         plt.ylabel('Closing Price (USD)')
