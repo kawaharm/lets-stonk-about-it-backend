@@ -4,7 +4,6 @@ from .models import Stock
 from django.views.decorators.csrf import csrf_exempt
 import ast
 import json
-import finnhub
 
 import datetime as dt
 from matplotlib import pyplot as plt
@@ -13,9 +12,6 @@ import base64
 from io import BytesIO
 from pandas_datareader import data as pdr
 import yfinance as yf
-
-
-API_KEY = settings.FINNHUB_API_KEY
 
 
 @csrf_exempt
