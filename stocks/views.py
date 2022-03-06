@@ -3,14 +3,10 @@ from django.http import HttpResponse
 from .models import Stock
 from django.views.decorators.csrf import csrf_exempt
 import ast
-import json
 
-import datetime as dt
 from matplotlib import pyplot as plt
-from matplotlib import style
 import base64
 from io import BytesIO
-from pandas_datareader import data as pdr
 import yfinance as yf
 
 
