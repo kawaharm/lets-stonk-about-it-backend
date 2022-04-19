@@ -51,9 +51,20 @@ def get_tweets(request):
         for stock in stock_list:
             if stock.get('name') == name:
                 q = stock['keywords']
+
+        # Collect last 500 tweets using pagination
         url = BASE_URL+"?query={}%20%23{}&max_results=100&sort_order=recency&tweet.fields=created_at".format(
             q[0], q[1])
+        tweet_collection = []
         response = execute_twitter_api_call(url)
+        tweet_collection.append(response)
+
+        for i in range(4):
+            next_token = response.get("meta", {}).get("next_token")
+            if next_token:
+                next_url = url + "&next_token=" + next_token
+                response = execute_twitter_api_call(next_url)
+                tweet_collection.append(response)
 
         '''
         Sentiment Analysis using VADER lexicon.
@@ -62,21 +73,22 @@ def get_tweets(request):
         Between -1 (most negative) and +1 (most positive).
         '''
         analyzer = SentimentIntensityAnalyzer()
-        tweets = []
-        for res in response['data']:
-            tweet = {}
-            tweet["message"] = res.get('text')
-            tweet["created_at"] = res.get('created_at')
-            # Remove url links from tweet for sentiment analyzer
-            rm_links = re.sub(r"http\S+", "", res.get('text'))
-            # polarity_scores: ex. {'neg': 0.0, 'neu': 0.929, 'pos': 0.071, 'compound': 0.3818}
-            vs = analyzer.polarity_scores(rm_links)
-            tweet["compound_score"] = vs['compound']
-            tweets.append(tweet)
+        tweets_and_scores = []
+        for t in tweet_collection:
+            for res in t['data']:
+                tweet = {}
+                tweet["message"] = res.get('text')
+                tweet["created_at"] = res.get('created_at')
+                # Remove url links from tweet for sentiment analyzer
+                rm_links = re.sub(r"http\S+", "", res.get('text'))
+                # polarity_scores: ex. {'neg': 0.0, 'neu': 0.929, 'pos': 0.071, 'compound': 0.3818}
+                vs = analyzer.polarity_scores(rm_links)
+                tweet["compound_score"] = vs['compound']
+                tweets_and_scores.append(tweet)
 
-        # Calculating average compound score of tweets by date
+        # Calculating average compound score of tweets_and_scores by date
         xy_plots = {}
-        for t in tweets:
+        for t in tweets_and_scores:
             plot = t
             date = plot["created_at"].split("T")[0]  # Extract YYYY-MM-DD only
             score = plot["compound_score"]

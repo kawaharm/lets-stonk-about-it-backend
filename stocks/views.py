@@ -53,5 +53,3 @@ def get_stocks(request):
             plotfinal)
 
         return HttpResponse(html_graph)
-
-        # return HttpResponse(json.dumps(response))
