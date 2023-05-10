@@ -14,5 +14,5 @@ def get_authentication(res):
 
 def execute_polygon_api_call(url):
     response = requests.get(url, auth=get_authentication)
-    print('RESPONSE AT EXECUTE: ', response)
+    # print('RESPONSE AT EXECUTE: ', response)
     return response.json()

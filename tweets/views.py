@@ -105,7 +105,7 @@ def get_tweets(request):
         # Replace score list with average score
         xy_plots = {date: statistics.mean(score)
                     for date, score in xy_plots.items()}
-        print('AVERAGE SCORE', xy_plots)
+        # print('AVERAGE SCORE', xy_plots)
 
         # Set up line graph
         dates = []

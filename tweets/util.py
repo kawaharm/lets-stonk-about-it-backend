@@ -27,7 +27,7 @@ def bearer_oauth(res):
 
 def execute_twitter_api_call(url):
     response = requests.get(url, auth=bearer_oauth)
-    print('STATUS CODE: ', response.status_code)
+    # print('STATUS CODE: ', response.status_code)
     if response.status_code != 200:
         raise Exception(
             "Request returned an error: {} {}".format(
