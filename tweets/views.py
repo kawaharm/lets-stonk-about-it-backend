@@ -27,7 +27,7 @@ stock_list = [
     },
     {
         "name": "AMC",
-        "keywords": ["amc", "amc"],
+        "keywords": ["amc"],
     },
     {
         "name": "AMZN",
@@ -51,6 +51,8 @@ def get_tweets(request):
         for stock in stock_list:
             if stock.get('name') == name:
                 q = stock['keywords']
+
+        print(q)
 
         # Collect last 500 tweets using pagination
         # Twitter API only allows 100 tweets max per request
