@@ -26,6 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 BEARER_TOKEN = str(os.getenv('BEARER_TOKEN'))
+API_KEY = str(os.getenv('TWITTER_API_KEY'))
+API_SECRET = str(os.getenv('TWITTER_API_SECRET'))
+ACCESS_TOKEN = str(os.getenv('TWITTER_ACCESS_TOKEN'))
+ACCESS_SECRET = str(os.getenv('TWITTER_ACCESS_SECRET'))
 POLYGON_API_KEY = str(os.getenv('POLYGON_API_KEY'))
 FINNHUB_API_KEY = str(os.getenv('FINNHUB_API_KEY'))
 
