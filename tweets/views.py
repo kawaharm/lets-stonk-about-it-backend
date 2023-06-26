@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 from django.views.decorators.csrf import csrf_exempt
 import sys
 
-BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
+# BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
+BASE_URL = "https://api.twitter.com/1.1/search/tweets.json"
 
 stock_list = [
     {
@@ -27,7 +28,7 @@ stock_list = [
     },
     {
         "name": "AMC",
-        "keywords": ["amc"],
+        "keywords": ["amc", "amc"],
     },
     {
         "name": "AMZN",
@@ -56,12 +57,14 @@ def get_tweets(request):
 
         # Collect last 500 tweets using pagination
         # Twitter API only allows 100 tweets max per request
-        url = BASE_URL+"?query={}%20%23{}&max_results=100&sort_order=recency&tweet.fields=created_at".format(
+        url = BASE_URL+"?q={}%20%23{}&count=100&result_type=mixed&lang=en".format(
             q[0], q[1])
         tweet_collection = []
         response = execute_twitter_api_call(url)
         tweet_collection.append(response)
+        print(len(tweet_collection[0]["statuses"]))
 
+        ''' Commenting out bc Twitter API v1.1 max count = 100
         # Use next_token to retrieve next 100 tweets
         for i in range(4):
             next_token = response.get("meta", {}).get("next_token")
@@ -69,6 +72,7 @@ def get_tweets(request):
                 next_url = url + "&next_token=" + next_token
                 response = execute_twitter_api_call(next_url)
                 tweet_collection.append(response)
+        '''
 
         '''
         Sentiment Analysis using VADER lexicon.
