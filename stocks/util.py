@@ -7,7 +7,6 @@ BASE_URL = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2020-06-01/20
 
 
 def get_authentication(res):
-
     res.headers["Authorization"] = f"Bearer {api_key}"
     return res
 
