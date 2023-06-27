@@ -9,6 +9,7 @@ from .models import Tweet
 import matplotlib.pyplot as plt
 from django.views.decorators.csrf import csrf_exempt
 import sys
+from datetime import datetime
 
 # BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
 BASE_URL = "https://api.twitter.com/1.1/search/tweets.json"
@@ -39,6 +40,19 @@ stock_list = [
         "keywords": ["nvidia", "nvda"],
     },
 ]
+
+
+def date_converter(date_str):
+    input_format = "%a %b %d %H:%M:%S %z %Y"
+    output_format = "%Y-%m-%d"
+
+    # Convert the date string to a datetime object
+    date_obj = datetime.strptime(date_str, input_format)
+
+    # Format the datetime object to the desired output format
+    formatted_date = date_obj.strftime(output_format)
+
+    return formatted_date
 
 
 @csrf_exempt
@@ -83,7 +97,7 @@ def get_tweets(request):
         analyzer = SentimentIntensityAnalyzer()
         tweets_and_scores = []
         for t in tweet_collection:
-            for res in t['data']:
+            for res in t['statuses']:
                 tweet = {}
                 tweet["message"] = res.get('text')
                 tweet["created_at"] = res.get('created_at')
@@ -98,7 +112,8 @@ def get_tweets(request):
         xy_plots = {}
         for t in tweets_and_scores:
             plot = t
-            date = plot["created_at"].split("T")[0]  # Extract YYYY-MM-DD only
+            # Extract YYYY-MM-DD only
+            date = date_converter(plot["created_at"])
             score = plot["compound_score"]
 
             # If date exists, append score to list
