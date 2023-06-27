@@ -18,7 +18,6 @@ def get_stocks(request):
         req = request.body.decode('utf-8')
         # Convert bytestring to dictionary
         stock = ast.literal_eval(req)
-        # print("stock info from REACT: ", stock)
 
         # Retrieve stock market data from Yahoo Finance
         company = stock['ticker']
@@ -27,7 +26,6 @@ def get_stocks(request):
 
         stock_data = yf.download(
             company, period=period, interval=interval)
-        # print(stock_data)
 
         def create_graph():
             # Create buffer for saving image of graph

@@ -67,8 +67,6 @@ def get_tweets(request):
             if stock.get('name') == name:
                 q = stock['keywords']
 
-        print(q)
-
         # Collect last 500 tweets using pagination
         # Twitter API only allows 100 tweets max per request
         url = BASE_URL+"?q={}%20%23{}&count=100&result_type=mixed&lang=en".format(
@@ -76,7 +74,6 @@ def get_tweets(request):
         tweet_collection = []
         response = execute_twitter_api_call(url)
         tweet_collection.append(response)
-        print(len(tweet_collection[0]["statuses"]))
 
         ''' Commenting out bc Twitter API v1.1 max count = 100
         # Use next_token to retrieve next 100 tweets
