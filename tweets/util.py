@@ -3,20 +3,13 @@ from django.conf import settings
 
 # Bearer token to authorize call to Twitter API
 bearer_token = settings.BEARER_TOKEN
-consumer_key = settings.API_KEY
-consumer_secret = settings.API_SECRET
-access_token = settings.ACCESS_TOKEN
-access_token_secret = settings.ACCESS_SECRET
 
-BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
-
-
-def create_url():
-    tweet_fields = "tweet.fields=lang,author_id"
-    ids = "ids=1278747501642657792,1255542774432063488"
-    url = "https://api.twitter.com/2/tweets/search/recent?{}&{}".format(
-        ids, tweet_fields)
-    return url
+# def create_url():
+#     tweet_fields = "tweet.fields=lang,author_id"
+#     ids = "ids=1278747501642657792,1255542774432063488"
+#     url = "https://api.twitter.com/2/tweets/search/recent?{}&{}".format(
+#         ids, tweet_fields)
+#     return url
 
 
 def bearer_oauth(res):
@@ -38,8 +31,3 @@ def execute_twitter_api_call(url):
             )
         )
     return response.json()
-
-
-def get_recent_tweets():
-    url = create_url()
-    return execute_twitter_api_call(url)
