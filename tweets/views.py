@@ -161,4 +161,4 @@ def get_tweets(request):
         html_graph = 'data:image/png;base64, {}'.format(
             plotfinal)
 
-        return HttpResponse(html_graph)
+        return HttpResponse(tweets_and_scores)

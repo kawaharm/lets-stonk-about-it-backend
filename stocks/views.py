@@ -29,9 +29,9 @@ def get_stocks(request):
         stock_data = yf.download(
             company, period=period, interval=interval)
 
-        def generate_graph_data(stock_data, interval):
+        def generate_stock_graph_data(data, interval):
             # Retrieve closing prices in JSON string
-            data_json = stock_data['Close'].to_json(
+            data_json = data['Close'].to_json(
                 orient='split')
             # Convert JSON to dict
             data_dict = json.loads(data_json)
@@ -46,4 +46,4 @@ def get_stocks(request):
             # Revert back to JSON string
             return json.dumps(data_dict)
 
-        return HttpResponse(generate_graph_data(stock_data, interval))
+        return HttpResponse(generate_stock_graph_data(stock_data, interval))
