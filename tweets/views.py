@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from django.views.decorators.csrf import csrf_exempt
 import sys
 from datetime import datetime
+import json
 
 # BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
 BASE_URL = "https://api.twitter.com/1.1/search/tweets.json"
@@ -108,10 +109,9 @@ def get_tweets(request):
         # Calculating average compound score of tweets_and_scores by date
         xy_plots = {}
         for t in tweets_and_scores:
-            plot = t
             # Extract YYYY-MM-DD only
-            date = date_converter(plot["created_at"])
-            score = plot["compound_score"]
+            date = date_converter(t["created_at"])
+            score = t["compound_score"]
 
             # If date exists, append score to list
             if xy_plots.get(date):
@@ -123,42 +123,16 @@ def get_tweets(request):
         # Replace score list with average score
         xy_plots = {date: statistics.mean(score)
                     for date, score in xy_plots.items()}
-        # print('AVERAGE SCORE', xy_plots)
 
         # Set up line graph
         dates = []
         avg_scores = []
-        x_order = []
-        count = 0
         for date, score in xy_plots.items():
             dates.insert(0, date)
             avg_scores.insert(0, score)
-            count += 1
-            x_order.append(count)
-        # print('DATES', dates)
-        # print('X_ORDER', x_order)
 
-        def create_graph():
-            # Create buffer for saving image of graph
-            buffer = BytesIO()
-            plt.savefig(buffer, format='png')
-            buffer.seek(0)
-            # Encode image then decode to utf-8
-            encoded = base64.b64encode(buffer.getvalue()).decode('utf-8')
-            buffer.close()  # free buffer memory
-            return encoded
+        tweet_data = {}
+        tweet_data['dates'] = dates
+        tweet_data['avg_scores'] = avg_scores
 
-        plt.switch_backend('AGG')   # Set matplotlib backend so we can use plt
-        fig, ax = plt.subplots()
-        ax.plot(x_order, avg_scores)
-        ax.set_xticks(x_order)
-        ax.set_xticklabels(dates, rotation=45)
-        plt.title('Average Sentiment for ${}'.format(name))
-        plt.xlabel('Date')
-        plt.ylabel('Average Compound Score')
-        plt.tight_layout()
-        plotfinal = create_graph()
-        html_graph = 'data:image/png;base64, {}'.format(
-            plotfinal)
-
-        return HttpResponse(tweets_and_scores)
+        return HttpResponse(json.dumps(tweet_data))
