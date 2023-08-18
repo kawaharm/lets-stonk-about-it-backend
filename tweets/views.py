@@ -11,6 +11,11 @@ from django.views.decorators.csrf import csrf_exempt
 import sys
 from datetime import datetime
 import json
+from threads_api.src.threads_api import ThreadsAPI
+from threads_api.src.http_sessions.instagrapi_session import InstagrapiSession
+from threads_api.src.http_sessions.requests_session import RequestsSession
+from threads_api.src.http_sessions.aiohttp_session import AioHTTPSession
+
 
 # BASE_URL = "https://api.twitter.com/2/tweets/search/recent"
 BASE_URL = "https://api.twitter.com/1.1/search/tweets.json"
@@ -70,7 +75,7 @@ def get_tweets(request):
 
         # Collect last 500 tweets using pagination
         # Twitter API only allows 100 tweets max per request
-        url = BASE_URL+"?q={}%20%23{}&count=100&result_type=mixed&lang=en".format(
+        url = BASE_URL+"?q={}%20%23{}&count=20&result_type=mixed&lang=en".format(
             q[0], q[1])
         tweet_collection = []
         response = execute_twitter_api_call(url)
@@ -136,3 +141,34 @@ def get_tweets(request):
         tweet_data['avg_scores'] = avg_scores
 
         return HttpResponse(json.dumps(tweet_data))
+
+
+async def get_user_id_from_username(api: ThreadsAPI):
+    username = "zuck"
+    user_id = await api.get_user_id_from_username(username)
+
+    if user_id:
+        print(f"The user ID for username '{username}' is: {user_id}")
+    else:
+        print(f"User ID not found for username '{username}'")
+
+
+@csrf_exempt
+async def get_threads(request):
+    if request.method == 'POST':
+        supported_http_session_classes = [
+            AioHTTPSession, RequestsSession, InstagrapiSession]
+
+        # Run the API calls using each of the Session types
+        for http_session_class in supported_http_session_classes:
+            api = ThreadsAPI(http_session_class=http_session_class)
+
+            print(f"Executing API calls using [{http_session_class}] session.")
+            # Retrieves the user ID for a given username.
+            await get_user_id_from_username(api)
+            await api.close_gracefully()
+
+    else:
+        return
+
+    return HttpResponse(stock_list)
